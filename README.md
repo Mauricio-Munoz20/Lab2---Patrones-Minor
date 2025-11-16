@@ -156,7 +156,7 @@ siguientes:
 **Generador personalizado:**
 - `cadenaAlfanumerica()`: Genera strings alfanuméricos para las pruebas
 
-### ⚠️ Pendiente
+### ⚠️ Pendiente // JH lo hace buzz
 
 1. **Clase `IdentifierFixer`** - No implementada
    - Debe transformar identificadores inválidos en válidos según reglas definidas
@@ -241,20 +241,72 @@ Cuando el identificador es inválido, el método `validateIdentifier` debe indic
 
 ---
 
-## Secciones Pendientes de Documentación
+## Tabla Final de Particiones de Equivalencia + Análisis de Frontera
 
-### Tabla final de particiones de equivalencia + análisis de frontera
+Esta tabla muestra el diseño completo de los casos de prueba basados en particiones de equivalencia y análisis de frontera implementados en `IdentifierParameterizedTest.java`.
 
-**Estado:** ⚠️ Pendiente de agregar al README
+### Tabla Principal de Particiones
 
-La tabla debe mostrar:
-- Las particiones de equivalencia identificadas (P1-P6)
-- Los casos de frontera para cada partición
-- Los casos de prueba diseñados para cada partición
+| Partición | Descripción | Tipo | Casos de Frontera | Casos de Prueba | Resultado Esperado |
+|-----------|-------------|------|-------------------|-----------------|-------------------|
+| **P1** | Identificadores válidos: comienzan con letra, longitud 1-5, solo alfanuméricos | ✅ Válido | Longitud: 1 (mínimo), 5 (máximo)<br>Carácter inicial: letra minúscula/mayúscula | `"a"`, `"A"` (frontera inferior)<br>`"abcde"`, `"ABCDE"`, `"a1b2c"` (frontera superior)<br>`"ab"`, `"a1"`, `"A1B2"`, `"x9y"` (intermedios)<br>`"a1234"` (frontera - 5 caracteres) | `true` |
+| **P2** | Inválidos: comienzan con dígito | ❌ Inválido | Primer carácter: dígito | `"1abc"` (dígito + letras)<br>`"9"` (solo dígito)<br>`"1a234"` (dígito inicial con letras) | `false` |
+| **P3** | Inválidos: comienzan con carácter especial | ❌ Inválido | Primer carácter: símbolo especial | `"@abc"` (arroba inicial)<br>`"_test"` (guion bajo inicial) | `false` |
+| **P4** | Inválidos: longitud 0 (cadena vacía) | ❌ Inválido | **Frontera inferior absoluta** | `""` (cadena vacía) | `false` |
+| **P5** | Inválidos: longitud > 5 | ❌ Inválido | **Frontera superior**: 6 caracteres (justo sobre el límite) | `"abcdef"` (6 caracteres - frontera)<br>`"abcdefgh"` (8 caracteres)<br>`"a1b2c3"` (6 caracteres alfanuméricos) | `false` |
+| **P6** | Inválidos: contienen caracteres especiales (pero comienzan con letra) | ❌ Inválido | Caracteres especiales en posición > 0 | `"ab-c"` (guion)<br>`"a@b"` (arroba)<br>`"a b"` (espacio)<br>`"a.b"` (punto)<br>`"a#b"` (numeral) | `false` |
 
-**Nota:** Los tests ya implementan estas particiones en `IdentifierParameterizedTest.java`, pero falta documentarlas en formato de tabla en el README.
+### Análisis Detallado de Fronteras
 
-### Lista de identificadores inválidos y su versión corregida por IdentifierFixer
+#### Frontera de Longitud
+
+| Frontera | Valor | Casos de Prueba | Resultado | Justificación |
+|----------|-------|-----------------|-----------|---------------|
+| **Frontera inferior absoluta** | 0 caracteres | `""` | `false` | Cadena vacía no es válida |
+| **Frontera inferior válida** | 1 carácter | `"a"`, `"A"` | `true` | Longitud mínima permitida |
+| **Frontera superior válida** | 5 caracteres | `"abcde"`, `"ABCDE"`, `"a1b2c"`, `"a1234"` | `true` | Longitud máxima permitida |
+| **Frontera superior inválida** | 6 caracteres | `"abcdef"`, `"a1b2c3"` | `false` | Justo sobre el límite máximo |
+
+#### Frontera de Caracteres Iniciales
+
+| Tipo de Carácter Inicial | Ejemplos | Resultado | Justificación |
+|---------------------------|----------|-----------|---------------|
+| **Letra minúscula** | `"a"`, `"abc"`, `"a1"` | `true` | Válido según regla 1 |
+| **Letra mayúscula** | `"A"`, `"ABC"`, `"A1"` | `true` | Válido según regla 1 |
+| **Dígito** | `"1abc"`, `"9"`, `"1a234"` | `false` | Violación de regla 1 |
+| **Carácter especial** | `"@abc"`, `"_test"` | `false` | Violación de regla 1 |
+
+#### Frontera de Caracteres Intermedios
+
+| Posición | Caracteres Válidos | Caracteres Inválidos | Ejemplos Válidos | Ejemplos Inválidos |
+|----------|-------------------|---------------------|------------------|-------------------|
+| **Posición 0** | Letras (A-Z, a-z) | Dígitos, símbolos | `"a"`, `"A"` | `"1"`, `"@"` |
+| **Posición 1-4** | Letras (A-Z, a-z), Dígitos (0-9) | Símbolos, espacios | `"a1"`, `"Ab2"`, `"a123"` | `"a-b"`, `"a b"`, `"a@b"` |
+
+### Resumen de Cobertura
+
+| Categoría | Cantidad | Detalles |
+|-----------|----------|----------|
+| **Particiones identificadas** | 6 | P1 (válidos), P2-P6 (inválidos) |
+| **Casos de prueba totales** | 24 | Distribuidos en las 6 particiones |
+| **Fronteras de longitud** | 4 | 0, 1, 5, 6 caracteres |
+| **Fronteras de caracteres** | 4 | Letra min/may, dígito, símbolo |
+| **Casos válidos** | 10 | Cubren todas las combinaciones válidas |
+| **Casos inválidos** | 14 | Cubren todas las violaciones de reglas |
+
+### Justificación del Diseño
+
+1. **Cobertura completa de reglas**: Cada regla del identificador tiene al menos un caso de prueba que la valida o viola.
+
+2. **Análisis de frontera exhaustivo**: Se prueban los valores límite (0, 1, 5, 6 caracteres) para detectar errores de off-by-one.
+
+3. **Particiones de equivalencia bien definidas**: Cada partición agrupa casos que deben comportarse de la misma manera, reduciendo redundancia.
+
+4. **Casos representativos**: Se seleccionan casos que representan cada partición sin necesidad de probar todas las combinaciones posibles.
+
+5. **Cobertura de casos extremos**: Se incluyen casos como cadena vacía, null (en tests unitarios), y longitudes justo en los límites.
+
+### Lista de identificadores inválidos y versión corregida por IdentifierFixer
 
 **Estado:** ⚠️ Requiere implementar IdentifierFixer primero
 
@@ -271,8 +323,6 @@ Se debe explicar:
 - Qué mejoras se aplicaron al método `validateIdentifier`
 - Por qué se realizaron esos cambios
 - Cómo mejoran la legibilidad, mantenibilidad o rendimiento del código
-
-**Nota:** Actualmente el código tiene identificadores en español, pero se puede documentar mejoras adicionales si se realizan.
 
 ---
 
