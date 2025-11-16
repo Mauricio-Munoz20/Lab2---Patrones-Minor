@@ -2,6 +2,11 @@
 
 ---
 
+## Nombres
+
+- Mauricio Muñoz (mauricio.munoz01@alumnos.ucn.cl)
+- Julian Honores (julian.honores@alumnos.ucn.cl)
+
 ## Objetivo General
 
 Este laboratorio tiene como objetivo que el estudiante aplique técnicas avanzadas de diseño de casos de prueba, cubriendo 
