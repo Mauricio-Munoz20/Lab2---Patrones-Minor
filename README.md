@@ -53,139 +53,6 @@ siguientes:
 
 ---
 
-## Estado Actual de la Implementación
-
-#### 1. Clase `Identifier` (`src/main/java/cl/ucn/modelo/Identifier.java`)
-
-**Método principal:**
-- `validateIdentifier(String identificador)`: Valida si un identificador cumple con las reglas establecidas
-
-**Métodos auxiliares:**
-- `esLetra(char caracter)`: Verifica si un carácter es una letra (A-Z, a-z)
-- `esAlfanumerico(char caracter)`: Verifica si un carácter es alfanumérico (letra o dígito)
-- `getError(String identificador)`: Retorna el tipo de error cuando un identificador es inválido
-
-**Características:**
-- ✅ Todos los identificadores (variables y métodos) traducidos al español
-- ✅ Validación de cadena vacía o null
-- ✅ Validación de longitud (1-5 caracteres)
-- ✅ Validación de primer carácter (debe ser letra)
-- ✅ Validación de caracteres siguientes (letras o dígitos)
-- ✅ Método `getError()` para identificar el tipo específico de error
-
-#### 2. Tests Unitarios (`src/test/java/cl/ucn/modelo/IdentifierUnitTest.java`)
-
-**Total: 19 tests unitarios no parametrizados**
-
-**Tests de casos válidos (9):**
-- `testValidSingleLetterLowerCase`: Letra minúscula única
-- `testValidSingleLetterUpperCase`: Letra mayúscula única
-- `testValidTwoLetters`: Dos letras
-- `testValidLetterFollowedByDigit`: Letra seguida de dígito
-- `testValidMultipleDigits`: Letra seguida de múltiples dígitos
-- `testValidMixedCaseAndDigits`: Mezcla de mayúsculas, minúsculas y dígitos
-- `testValidMaximumLength`: Exactamente 5 caracteres
-- `testValidAllDigitsAfterFirstLetter`: Letra inicial seguida de solo dígitos
-- `testValidBoundaryCaseOneCharacter`: Un solo carácter válido
-- `testValidBoundaryCaseFiveCharacters`: Exactamente 5 caracteres válidos
-
-**Tests de casos inválidos (10):**
-- `testInvalidEmptyString`: Cadena vacía
-- `testInvalidStartsWithDigit`: Comienza con dígito
-- `testInvalidTooLong`: Más de 5 caracteres
-- `testInvalidContainsSpecialCharacter`: Contiene carácter especial
-- `testInvalidContainsSpace`: Contiene espacio
-- `testInvalidStartsWithUnderscore`: Comienza con guion bajo
-- `testInvalidJustOverMaximumLength`: 6 caracteres (excede máximo)
-- `testInvalidOnlySpecialCharacters`: Solo caracteres especiales
-- `testInvalidNullInput`: Entrada null
-
-#### 3. Tests Parametrizados (`src/test/java/cl/ucn/modelo/IdentifierParameterizedTest.java`)
-
-**Total: 24 casos de prueba parametrizados** (usando `@RunWith(Parameterized.class)`)
-
-**Particiones de Equivalencia implementadas:**
-
-- **P1: Identificadores válidos** (9 casos)
-  - Frontera inferior: 1 carácter (minúscula y mayúscula)
-  - Frontera superior: 5 caracteres (letras, mayúsculas, alfanuméricos)
-  - Casos intermedios: 2, 3, 4 caracteres con diferentes combinaciones
-
-- **P2: Inválidos - comienzan con dígito** (2 casos)
-  - `"1abc"`, `"9"`
-
-- **P3: Inválidos - comienzan con carácter especial** (2 casos)
-  - `"@abc"`, `"_test"`
-
-- **P4: Inválidos - longitud 0** (1 caso)
-  - Cadena vacía `""`
-
-- **P5: Inválidos - longitud > 5** (2 casos)
-  - `"abcdef"` (6 caracteres), `"abcdefgh"` (8 caracteres)
-
-- **P6: Inválidos - contienen caracteres especiales** (4 casos)
-  - Guion `"ab-c"`, arroba `"a@b"`, espacio `"a b"`, punto `"a.b"`
-
-- **Casos adicionales de frontera** (4 casos)
-  - `"a1234"` (válido - 5 caracteres), `"1a234"` (inválido), `"a1b2c3"` (inválido - 6 caracteres), `"a#b"` (inválido)
-
-**Análisis de frontera cubierto:**
-- Frontera de longitud: 0, 1, 5, 6 caracteres
-- Frontera de caracteres: letra inicial válida, dígito inicial inválido
-
-#### 4. Property-Based Testing (`src/test/java/cl/ucn/modelo/IdentifierPropertiesTest.java`)
-
-**Total: 4 propiedades definidas y testeadas usando jqwik**
-
-**Propiedad 1: `validIdentifiersAreAlwaysAccepted`**
-- Verifica que identificadores válidos (comienzan con letra, longitud 1-5, solo alfanuméricos) son siempre aceptados
-- Genera automáticamente cientos de casos de prueba
-
-**Propiedad 2: `invalidIdentifiersAreAlwaysRejected`**
-- Verifica que identificadores inválidos (violan alguna regla) son siempre rechazados
-- Cubre: cadena vacía, no comienza con letra, longitud > 5, caracteres no alfanuméricos
-
-**Propiedad 3: `validIdentifiersSatisfyAllRules`**
-- Verifica consistencia: si un identificador es válido, debe cumplir todas las reglas
-- Valida longitud, primer carácter y caracteres alfanuméricos
-
-**Propiedad 4: `identifiersStartingWithDigitAreInvalid`**
-- Verifica que identificadores que comienzan con dígito son siempre inválidos
-- Genera casos con primer carácter numérico seguido de alfanuméricos
-
-**Generador personalizado:**
-- `cadenaAlfanumerica()`: Genera strings alfanuméricos para las pruebas
-
-#### 5. Clase `IdentifierFixer` (`src/main/java/cl/ucn/modelo/IdentifierFixer.java`)
-
-**Método principal:**
-- `corregir(String original)`: Transforma un identificador inválido en uno válido aplicando reglas de corrección
-
-**Reglas de corrección implementadas:**
-1. **Eliminación de símbolos**: Elimina todos los caracteres no alfanuméricos
-2. **Corrección de cadena vacía**: Si después de eliminar símbolos queda vacío, reemplaza por "a"
-3. **Corrección de primer carácter**: Si no comienza con letra, reemplaza el primer carácter por "a"
-4. **Eliminación de dígitos consecutivos**: Elimina dígitos consecutivos, dejando solo el primero
-5. **Truncado**: Si excede 5 caracteres, trunca a 5 caracteres
-6. **Validación final**: Si después de todas las correcciones aún es inválido, retorna "a"
-
-**Características:**
-- ✅ Implementación completa con todas las reglas de corrección
-- ✅ Manejo de casos edge (null, cadena vacía, solo símbolos)
-- ✅ Validación final para garantizar que el resultado sea siempre válido
-
-#### 6. Enum `IdentifierError` (`src/main/java/cl/ucn/modelo/IdentifierError.java`)
-
-**Valores del enum (5 valores, mínimo 4 requerido):**
-- `NULO_O_VACIO`: Identificador es null o cadena vacía
-- `MUY_LARGO`: Identificador excede la longitud máxima de 5 caracteres
-- `PRIMER_CARACTER_NO_LETRA`: El primer carácter no es una letra
-- `CARACTER_INVALIDO`: Contiene caracteres no alfanuméricos
-- `DESCONOCIDO`: Error desconocido (caso no cubierto)
-
-**Uso:**
-- El método `getError(String identificador)` de la clase `Identifier` retorna el tipo específico de error
-- Permite identificar la causa exacta de la invalidación de un identificador
 ## Entregables Obligatorios
 
 El estudiante debe entregar lo siguiente en `src/test/java/...`:
@@ -252,6 +119,215 @@ Debes definir las reglas de corrección en README (sección abajo).
 
 ### 4) Enum de Código de Error 
 Cuando el identificador es inválido, el método `validateIdentifier` debe indicar POR QUÉ falla (enum con mínimo 4 causas).
+
+---
+
+## Estado Actual de la Implementación
+
+#### 1. Clase `Identifier` (`src/main/java/cl/ucn/modelo/Identifier.java`)
+
+**Método principal:**
+- `validateIdentifier(String identificador)`: Valida si un identificador cumple con las reglas establecidas. Retorna `true` si es válido, `false` en caso contrario.
+
+**Métodos públicos auxiliares:**
+- `esLetra(char caracter)`: Verifica si un carácter es una letra (A-Z, a-z). Retorna `true` si es letra, `false` en caso contrario.
+- `esAlfanumerico(char caracter)`: Verifica si un carácter es alfanumérico (letra A-Z, a-z o dígito 0-9). Retorna `true` si es alfanumérico, `false` en caso contrario.
+- `getError(String identificador)`: Retorna el tipo de error (`IdentifierError`) cuando un identificador es inválido. Permite identificar la causa específica de la invalidación.
+
+**Métodos privados:**
+- `validateChars(String identificador)`: Método privado que valida que todos los caracteres desde la posición 1 en adelante sean alfanuméricos. Parte del refactor para mejorar la legibilidad del código.
+
+**Características implementadas:**
+- ✅ Todos los identificadores (variables y métodos) traducidos al español
+- ✅ Validación de cadena vacía o null (retorna `false`)
+- ✅ Validación de longitud (1-5 caracteres inclusive)
+- ✅ Validación de primer carácter (debe ser letra, no dígito ni símbolo)
+- ✅ Validación de caracteres siguientes (letras o dígitos únicamente, no símbolos)
+- ✅ Método `getError()` para identificar el tipo específico de error (5 tipos de error definidos)
+- ✅ Refactor aplicado: código más limpio, separación de responsabilidades, eliminación de variables innecesarias
+
+#### 2. Tests Unitarios (`src/test/java/cl/ucn/modelo/IdentifierUnitTest.java`)
+
+**Total: 19 tests unitarios no parametrizados**
+
+**Tests de casos válidos (9 tests):**
+- `testValidSingleLetterLowerCase`: Valida que una letra minúscula única (`"a"`) sea válida
+- `testValidSingleLetterUpperCase`: Valida que una letra mayúscula única (`"Z"`) sea válida
+- `testValidTwoLetters`: Valida que dos letras (`"ab"`) sean válidas
+- `testValidLetterFollowedByDigit`: Valida que letra seguida de dígito (`"a1"`) sea válida
+- `testValidMultipleDigits`: Valida que letra seguida de múltiples dígitos (`"a123"`) sea válida
+- `testValidMixedCaseAndDigits`: Valida que mezcla de mayúsculas, minúsculas y dígitos (`"Ab1C2"`) sea válida
+- `testValidMaximumLength`: Valida que exactamente 5 caracteres (`"abcde"`) sea válido
+- `testValidAllDigitsAfterFirstLetter`: Valida que letra inicial seguida de solo dígitos (`"a1234"`) sea válida
+- `testValidBoundaryCaseOneCharacter`: Valida que un solo carácter válido (`"x"`) sea válido
+- `testValidBoundaryCaseFiveCharacters`: Valida que exactamente 5 caracteres válidos (`"A1b2C"`) sea válido
+
+**Tests de casos inválidos (10 tests):**
+- `testInvalidEmptyString`: Verifica que cadena vacía (`""`) sea inválida
+- `testInvalidStartsWithDigit`: Verifica que identificador que comienza con dígito (`"1abc"`) sea inválido
+- `testInvalidTooLong`: Verifica que identificador con más de 5 caracteres (`"abcdef"`) sea inválido
+- `testInvalidContainsSpecialCharacter`: Verifica que identificador con carácter especial (`"ab-c"`) sea inválido
+- `testInvalidContainsSpace`: Verifica que identificador con espacio (`"a b"`) sea inválido
+- `testInvalidStartsWithUnderscore`: Verifica que identificador que comienza con guion bajo (`"_test"`) sea inválido
+- `testInvalidJustOverMaximumLength`: Verifica que identificador con 6 caracteres (`"abcdef"`) sea inválido
+- `testInvalidOnlySpecialCharacters`: Verifica que solo caracteres especiales (`"@#$"`) sea inválido
+- `testInvalidNullInput`: Verifica que entrada `null` sea inválida
+
+**Cobertura:**
+- ✅ Casos válidos: cubre fronteras (1 y 5 caracteres) y casos intermedios
+- ✅ Casos inválidos: cubre todas las reglas de invalidación (null, vacío, longitud, primer carácter, caracteres especiales)
+- ✅ Todos los tests incluyen mensajes descriptivos en las aserciones
+
+#### 3. Tests Parametrizados (`src/test/java/cl/ucn/modelo/IdentifierParameterizedTest.java`)
+
+**Total: 24 casos de prueba parametrizados** (usando `@RunWith(Parameterized.class)`)
+
+**Implementación:**
+- Usa la anotación `@RunWith(Parameterized.class)` de JUnit 4
+- Método `@Parameters` con nombre descriptivo para cada caso: `"{index}: {2} - Input: \"{0}\" -> {1}"`
+- Constructor parametrizado que recibe: entrada, resultado esperado y descripción
+
+**Particiones de Equivalencia implementadas:**
+
+- **P1: Identificadores válidos** (10 casos)
+  - Frontera inferior: 1 carácter
+    - `"a"` (minúscula)
+    - `"A"` (mayúscula)
+  - Frontera superior: 5 caracteres
+    - `"abcde"` (5 letras minúsculas)
+    - `"ABCDE"` (5 letras mayúsculas)
+    - `"a1b2c"` (5 caracteres alfanuméricos)
+    - `"a1234"` (letra + 4 dígitos)
+  - Casos intermedios: 2, 3, 4 caracteres
+    - `"ab"` (2 letras)
+    - `"a1"` (letra + dígito)
+    - `"A1B2"` (4 caracteres alfanuméricos)
+    - `"x9y"` (3 caracteres con dígitos)
+
+- **P2: Inválidos - comienzan con dígito** (3 casos)
+  - `"1abc"` (dígito + letras)
+  - `"9"` (solo dígito)
+  - `"1a234"` (dígito inicial con letras y números)
+
+- **P3: Inválidos - comienzan con carácter especial** (2 casos)
+  - `"@abc"` (arroba inicial)
+  - `"_test"` (guion bajo inicial)
+
+- **P4: Inválidos - longitud 0** (1 caso)
+  - `""` (cadena vacía - frontera inferior absoluta)
+
+- **P5: Inválidos - longitud > 5** (3 casos)
+  - `"abcdef"` (6 caracteres - frontera superior)
+  - `"abcdefgh"` (8 caracteres)
+  - `"a1b2c3"` (6 caracteres alfanuméricos)
+
+- **P6: Inválidos - contienen caracteres especiales** (5 casos)
+  - `"ab-c"` (guion)
+  - `"a@b"` (arroba)
+  - `"a b"` (espacio)
+  - `"a.b"` (punto)
+  - `"a#b"` (numeral)
+
+**Análisis de frontera cubierto:**
+- **Frontera de longitud:**
+  - 0 caracteres: `""` (inválido)
+  - 1 carácter: `"a"`, `"A"` (válido - mínimo)
+  - 5 caracteres: `"abcde"`, `"ABCDE"`, `"a1b2c"`, `"a1234"` (válido - máximo)
+  - 6 caracteres: `"abcdef"`, `"a1b2c3"` (inválido - excede máximo)
+- **Frontera de caracteres:**
+  - Letra inicial: `"a"`, `"A"` (válido)
+  - Dígito inicial: `"1abc"`, `"9"` (inválido)
+  - Símbolo inicial: `"@abc"`, `"_test"` (inválido)
+  - Caracteres especiales intermedios: `"ab-c"`, `"a@b"`, `"a b"` (inválido)
+
+#### 4. Property-Based Testing (`src/test/java/cl/ucn/modelo/IdentifierPropertiesTest.java`)
+
+**Total: 4 propiedades definidas y testeadas usando jqwik**
+
+**Framework utilizado:**
+- **jqwik** (versión 1.8.2) - librería de Property-Based Testing para Java
+- Usa anotaciones `@Property` para marcar métodos como propiedades a verificar
+- Usa `@ForAll` para generar valores aleatorios automáticamente
+- Usa `Assume.that()` para filtrar casos que no cumplen precondiciones
+
+**Propiedad 1: `validIdentifiersAreAlwaysAccepted`**
+- **Objetivo:** Verifica que identificadores válidos (comienzan con letra, longitud 1-5, solo alfanuméricos) son siempre aceptados por `validateIdentifier`
+- **Generación:**
+  - Primer carácter: letra (A-Z, a-z) usando `@AlphaChars @StringLength(min = 1, max = 1)`
+  - Resto: 0-4 caracteres alfanuméricos usando generador personalizado `cadenaAlfanumerica()`
+- **Validaciones:** Verifica longitud [1, 5], caracteres alfanuméricos, y que comienza con letra
+- **Cobertura:** Genera automáticamente cientos o miles de casos de prueba
+
+**Propiedad 2: `invalidIdentifiersAreAlwaysRejected`**
+- **Objetivo:** Verifica que identificadores inválidos (violan alguna regla) son siempre rechazados
+- **Generación:** Strings de longitud 0-10 caracteres (sin restricciones)
+- **Filtrado:** Solo procesa strings que violan al menos una regla:
+  - Longitud 0 (cadena vacía)
+  - No comienza con letra
+  - Longitud > 5
+  - Contiene caracteres no alfanuméricos
+- **Cobertura:** Genera casos aleatorios que cubren todas las violaciones posibles
+
+**Propiedad 3: `validIdentifiersSatisfyAllRules`**
+- **Objetivo:** Verifica consistencia - si un identificador es válido según `validateIdentifier`, debe cumplir todas las reglas
+- **Generación:** Similar a Propiedad 1 (primer carácter letra + resto alfanumérico)
+- **Validaciones:** Si es válido, verifica que:
+  - Longitud está entre 1 y 5
+  - Comienza con letra
+  - Todos los caracteres son alfanuméricos
+- **Propósito:** Garantiza coherencia entre la validación y las reglas
+
+**Propiedad 4: `identifiersStartingWithDigitAreInvalid`**
+- **Objetivo:** Verifica que identificadores que comienzan con dígito son siempre inválidos
+- **Generación:**
+  - Primer carácter: dígito (0-9) usando `@NumericChars @StringLength(min = 1, max = 1)`
+  - Resto: 0-4 caracteres alfanuméricos
+- **Validación:** Cualquier string que comience con dígito debe ser rechazado
+- **Cobertura:** Genera casos con diferentes dígitos iniciales y combinaciones
+
+**Generador personalizado:**
+- `cadenaAlfanumerica()`: Método anotado con `@Provide` que genera strings alfanuméricos
+  - Incluye letras minúsculas (a-z)
+  - Incluye letras mayúsculas (A-Z)
+  - Incluye dígitos (0-9)
+  - Usado en las propiedades 1, 3 y 4 para generar el resto de caracteres después del primero
+
+**Ventajas del Property-Based Testing:**
+- ✅ Descubre casos edge que no se consideraron manualmente
+- ✅ Genera cientos o miles de casos automáticamente
+- ✅ Verifica propiedades generales del sistema, no solo casos específicos
+- ✅ Facilita la detección de bugs sutiles
+
+#### 5. Clase `IdentifierFixer` (`src/main/java/cl/ucn/modelo/IdentifierFixer.java`)
+
+**Método principal:**
+- `corregir(String original)`: Transforma un identificador inválido en uno válido aplicando reglas de corrección
+
+**Reglas de corrección implementadas:**
+1. **Eliminación de símbolos**: Elimina todos los caracteres no alfanuméricos
+2. **Corrección de cadena vacía**: Si después de eliminar símbolos queda vacío, reemplaza por "a"
+3. **Corrección de primer carácter**: Si no comienza con letra, reemplaza el primer carácter por "a"
+4. **Eliminación de dígitos consecutivos**: Elimina dígitos consecutivos, dejando solo el primero
+5. **Truncado**: Si excede 5 caracteres, trunca a 5 caracteres
+6. **Validación final**: Si después de todas las correcciones aún es inválido, retorna "a"
+
+**Características:**
+- ✅ Implementación completa con todas las reglas de corrección
+- ✅ Manejo de casos edge (null, cadena vacía, solo símbolos)
+- ✅ Validación final para garantizar que el resultado sea siempre válido
+
+#### 6. Enum `IdentifierError` (`src/main/java/cl/ucn/modelo/IdentifierError.java`)
+
+**Valores del enum (5 valores, mínimo 4 requerido):**
+- `NULO_O_VACIO`: Identificador es null o cadena vacía
+- `MUY_LARGO`: Identificador excede la longitud máxima de 5 caracteres
+- `PRIMER_CARACTER_NO_LETRA`: El primer carácter no es una letra
+- `CARACTER_INVALIDO`: Contiene caracteres no alfanuméricos
+- `DESCONOCIDO`: Error desconocido (caso no cubierto)
+
+**Uso:**
+- El método `getError(String identificador)` de la clase `Identifier` retorna el tipo específico de error
+- Permite identificar la causa exacta de la invalidación de un identificador
 
 ---
 
@@ -341,6 +417,7 @@ La siguiente tabla muestra ejemplos reales de identificadores inválidos y cómo
 | `"abcde"` | `"abcde"` | Ya era válido, no se modifica |
 | `"a11b"` | `"a1b"` | Eliminación de dígitos consecutivos (se elimina el segundo '1') |
 | `"@#$%^"` | `"a"` | Solo símbolos especiales: se eliminan todos y se reemplaza por 'a' |
+
 
 **Notas sobre el comportamiento:**
 - Si el identificador ya es válido, `IdentifierFixer` lo retorna sin modificar
