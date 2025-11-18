@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="cl.ucn.modelo.IdentifierPropertiesTest" time="0.354" tests="4" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.022" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -58,68 +58,10 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="invalidIdentifiersAreAlwaysRejected" classname="cl.ucn.modelo.IdentifierPropertiesTest" time="0.178">
-    <system-out><![CDATA[timestamp = 2025-11-18T00:32:32.326695500, IdentifierPropertiesTest:invalidIdentifiersAreAlwaysRejected = 
-                              |-----------------------jqwik-----------------------
-tries = 1000                  | # of calls to property
-checks = 1000                 | # of not rejected calls
-generation = RANDOMIZED       | parameters are randomly generated
-after-failure = SAMPLE_FIRST  | try previously failed sample, then previous seed
-when-fixed-seed = ALLOW       | fixing the random seed is allowed
-edge-cases#mode = MIXIN       | edge cases are mixed in
-edge-cases#total = 3          | # of all combined edge cases
-edge-cases#tried = 3          | # of edge cases tried in current run
-seed = -8773720574383245997   | random seed to reproduce generated values
-
-
-]]></system-out>
-  </testcase>
-  <testcase name="validIdentifiersAreAlwaysAccepted" classname="cl.ucn.modelo.IdentifierPropertiesTest" time="0.079">
-    <system-out><![CDATA[timestamp = 2025-11-18T00:32:32.411094800, IdentifierPropertiesTest:validIdentifiersAreAlwaysAccepted = 
-                              |-----------------------jqwik-----------------------
-tries = 1000                  | # of calls to property
-checks = 1000                 | # of not rejected calls
-generation = RANDOMIZED       | parameters are randomly generated
-after-failure = SAMPLE_FIRST  | try previously failed sample, then previous seed
-when-fixed-seed = ALLOW       | fixing the random seed is allowed
-edge-cases#mode = MIXIN       | edge cases are mixed in
-edge-cases#total = 28         | # of all combined edge cases
-edge-cases#tried = 28         | # of edge cases tried in current run
-seed = 5803493845163480273    | random seed to reproduce generated values
-
-
-]]></system-out>
-  </testcase>
-  <testcase name="validIdentifiersSatisfyAllRules" classname="cl.ucn.modelo.IdentifierPropertiesTest" time="0.032">
-    <system-out><![CDATA[timestamp = 2025-11-18T00:32:32.444406300, IdentifierPropertiesTest:validIdentifiersSatisfyAllRules = 
-                              |-----------------------jqwik-----------------------
-tries = 1000                  | # of calls to property
-checks = 1000                 | # of not rejected calls
-generation = RANDOMIZED       | parameters are randomly generated
-after-failure = SAMPLE_FIRST  | try previously failed sample, then previous seed
-when-fixed-seed = ALLOW       | fixing the random seed is allowed
-edge-cases#mode = MIXIN       | edge cases are mixed in
-edge-cases#total = 28         | # of all combined edge cases
-edge-cases#tried = 28         | # of edge cases tried in current run
-seed = -8479470772293824325   | random seed to reproduce generated values
-
-
-]]></system-out>
-  </testcase>
-  <testcase name="identifiersStartingWithDigitAreInvalid" classname="cl.ucn.modelo.IdentifierPropertiesTest" time="0.028">
-    <system-out><![CDATA[timestamp = 2025-11-18T00:32:32.472733700, IdentifierPropertiesTest:identifiersStartingWithDigitAreInvalid = 
-                              |-----------------------jqwik-----------------------
-tries = 1000                  | # of calls to property
-checks = 1000                 | # of not rejected calls
-generation = RANDOMIZED       | parameters are randomly generated
-after-failure = SAMPLE_FIRST  | try previously failed sample, then previous seed
-when-fixed-seed = ALLOW       | fixing the random seed is allowed
-edge-cases#mode = MIXIN       | edge cases are mixed in
-edge-cases#total = 14         | # of all combined edge cases
-edge-cases#tried = 14         | # of edge cases tried in current run
-seed = -9137838090811480457   | random seed to reproduce generated values
-
-
-]]></system-out>
-  </testcase>
+  <testcase name="corregirCadenasValidasTest" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.004"/>
+  <testcase name="corregirPrimerCaracterTest" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.002"/>
+  <testcase name="corregirNullDevuelveNull" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.001"/>
+  <testcase name="corregirCaracterInvalidoInterno" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.0"/>
+  <testcase name="corregirCadenaVaciaNulaTest" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.0"/>
+  <testcase name="corregirExcederLargoTest" classname="cl.ucn.modelo.IdentifierFixerUnitTest" time="0.0"/>
 </testsuite>

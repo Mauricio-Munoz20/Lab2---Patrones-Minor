@@ -13,31 +13,13 @@ import net.jqwik.api.constraints.AlphaChars;
 import net.jqwik.api.constraints.NumericChars;
 import net.jqwik.api.constraints.StringLength;
 
-/**
- * Property-Based Testing para Identifier usando jqwik.
- * 
- * Define propiedades generales que siempre deben cumplirse,
- * independientemente del input generado automáticamente.
- */
 class IdentifierPropertiesTest {
 
     private final Identifier identificador = new Identifier();
 
-
-    /**
-     * Propiedad 1: Identificadores válidos son aceptados
-     * 
-     * Si un string cumple todas las condiciones:
-     * - Comienza con una letra (A-Z o a-z)
-     * - Tiene longitud entre 1 y 5 caracteres (inclusive)
-     * - Solo contiene letras y dígitos
-     * Entonces debe ser aceptado por validateIdentifier
-     */
     @Property
     void validIdentifiersAreAlwaysAccepted(
-            // Primer carácter: debe ser una letra
             @ForAll @AlphaChars @StringLength(min = 1, max = 1) String primerCaracter,
-            // Resto de caracteres: 0-4 caracteres alfanuméricos
             @ForAll("cadenaAlfanumerica") @StringLength(min = 0, max = 4) String resto
     ) {
         String cadenaIdentificador = primerCaracter + resto;
@@ -57,9 +39,6 @@ class IdentifierPropertiesTest {
                    "Identificador válido debe ser aceptado: " + cadenaIdentificador);
     }
 
-    /**
-     * Generador de strings alfanuméricos
-     */
     @Provide
     Arbitrary<String> cadenaAlfanumerica() {
         return Arbitraries.strings()
@@ -68,15 +47,6 @@ class IdentifierPropertiesTest {
             .withChars('0', '9');
     }
 
-    /**
-     * Propiedad 2: Identificadores inválidos son rechazados
-     * 
-     * Si un string viola alguna de las reglas:
-     * - No comienza con letra, O
-     * - Tiene longitud fuera del rango [1, 5], O
-     * - Contiene caracteres no alfanuméricos
-     * Entonces debe ser rechazado por validateIdentifier
-     */
     @Property
     void invalidIdentifiersAreAlwaysRejected(
             @ForAll @StringLength(min = 0, max = 10) String cadenaIdentificador
@@ -109,14 +79,6 @@ class IdentifierPropertiesTest {
         }
     }
 
-    /**
-     * Propiedad 3: Consistencia en la validación
-     * 
-     * Si un identificador es válido, entonces:
-     * - Tiene longitud entre 1 y 5
-     * - Comienza con letra
-     * - Todos los caracteres son alfanuméricos
-     */
     @Property
     void validIdentifiersSatisfyAllRules(
             @ForAll @AlphaChars @StringLength(min = 1, max = 1) String primerCaracter,
@@ -140,9 +102,6 @@ class IdentifierPropertiesTest {
         }
     }
 
-    /**
-     * Propiedad 4: Identificadores que comienzan con dígito son siempre inválidos
-     */
     @Property
     void identifiersStartingWithDigitAreInvalid(
             @ForAll @NumericChars @StringLength(min = 1, max = 1) String primerCaracter,

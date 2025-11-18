@@ -11,7 +11,7 @@ public class Identifier {
         return IdentifierError.DESCONOCIDO;
     }
 
-    private boolean validateChars(String identificador) {
+    public boolean validateChars(String identificador) {
         int i = 1;
         while (i < identificador.length()) {
             if (!esAlfanumerico(identificador.charAt(i))) {

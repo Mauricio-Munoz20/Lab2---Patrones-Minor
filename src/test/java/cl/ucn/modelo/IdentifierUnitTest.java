@@ -5,10 +5,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Tests unitarios no parametrizados para la clase Identifier.
- * Cubre casos específicos y edge cases adicionales.
- */
 public class IdentifierUnitTest {
 
     private Identifier identificador;
