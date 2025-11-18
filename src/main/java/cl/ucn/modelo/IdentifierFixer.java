@@ -19,10 +19,7 @@ public class IdentifierFixer {
         String r = original;
 
         r = eliminarSimbolos(r);
-        if (r.isEmpty()) r = "a";
-
         r = arreglarPrimerCaracter(r);
-        r = eliminarDigitosConsecutivos(r);
         r = truncar(r, 5);
 
         if (!validator.validateIdentifier(r)) return "a";
@@ -39,31 +36,11 @@ public class IdentifierFixer {
     }
 
     private String arreglarPrimerCaracter(String s) {
+        if (s.isEmpty()) return "a";
         char c = s.charAt(0);
         if (validator.esLetra(c)) return s;
-
         if (s.length() == 1) return "a";
         return "a" + s.substring(1);
-    }
-
-    private String eliminarDigitosConsecutivos(String s) {
-        StringBuilder sb = new StringBuilder();
-        boolean ultimoEraDigito = false;
-
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            boolean esDigito = Character.isDigit(c);
-
-            if (esDigito && !ultimoEraDigito) {
-                sb.append(c);
-                ultimoEraDigito = true;
-            } else if (!esDigito) {
-                sb.append(c);
-                ultimoEraDigito = false;
-            }
-        }
-
-        return sb.toString();
     }
 
     private String truncar(String s, int max) {
@@ -71,4 +48,3 @@ public class IdentifierFixer {
         return s.substring(0, max);
     }
 }
-
