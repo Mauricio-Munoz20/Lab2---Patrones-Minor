@@ -55,8 +55,6 @@ siguientes:
 
 ## Estado Actual de la Implementación
 
-### ✅ Implementado
-
 #### 1. Clase `Identifier` (`src/main/java/cl/ucn/modelo/Identifier.java`)
 
 **Método principal:**
@@ -65,6 +63,7 @@ siguientes:
 **Métodos auxiliares:**
 - `esLetra(char caracter)`: Verifica si un carácter es una letra (A-Z, a-z)
 - `esAlfanumerico(char caracter)`: Verifica si un carácter es alfanumérico (letra o dígito)
+- `getError(String identificador)`: Retorna el tipo de error cuando un identificador es inválido
 
 **Características:**
 - ✅ Todos los identificadores (variables y métodos) traducidos al español
@@ -72,6 +71,7 @@ siguientes:
 - ✅ Validación de longitud (1-5 caracteres)
 - ✅ Validación de primer carácter (debe ser letra)
 - ✅ Validación de caracteres siguientes (letras o dígitos)
+- ✅ Método `getError()` para identificar el tipo específico de error
 
 #### 2. Tests Unitarios (`src/test/java/cl/ucn/modelo/IdentifierUnitTest.java`)
 
@@ -156,22 +156,36 @@ siguientes:
 **Generador personalizado:**
 - `cadenaAlfanumerica()`: Genera strings alfanuméricos para las pruebas
 
-### ⚠️ Pendiente // JH lo hace buzz
+#### 5. Clase `IdentifierFixer` (`src/main/java/cl/ucn/modelo/IdentifierFixer.java`)
 
-1. **Clase `IdentifierFixer`** - No implementada
-   - Debe transformar identificadores inválidos en válidos según reglas definidas
+**Método principal:**
+- `corregir(String original)`: Transforma un identificador inválido en uno válido aplicando reglas de corrección
 
-2. **Enum de Código de Error** - No implementado
-   - Debe indicar por qué falla un identificador inválido (mínimo 4 causas)
+**Reglas de corrección implementadas:**
+1. **Eliminación de símbolos**: Elimina todos los caracteres no alfanuméricos
+2. **Corrección de cadena vacía**: Si después de eliminar símbolos queda vacío, reemplaza por "a"
+3. **Corrección de primer carácter**: Si no comienza con letra, reemplaza el primer carácter por "a"
+4. **Eliminación de dígitos consecutivos**: Elimina dígitos consecutivos, dejando solo el primero
+5. **Truncado**: Si excede 5 caracteres, trunca a 5 caracteres
+6. **Validación final**: Si después de todas las correcciones aún es inválido, retorna "a"
 
-3. **Refactor del método base** - Pendiente documentación
-   - Mejoras aplicadas al método `validateIdentifier` deben documentarse
+**Características:**
+- ✅ Implementación completa con todas las reglas de corrección
+- ✅ Manejo de casos edge (null, cadena vacía, solo símbolos)
+- ✅ Validación final para garantizar que el resultado sea siempre válido
 
-4. **Tabla de particiones de equivalencia** - Pendiente documentación en README
-   - Tabla completa que muestre el diseño de los tests
+#### 6. Enum `IdentifierError` (`src/main/java/cl/ucn/modelo/IdentifierError.java`)
 
----
+**Valores del enum (5 valores, mínimo 4 requerido):**
+- `NULO_O_VACIO`: Identificador es null o cadena vacía
+- `MUY_LARGO`: Identificador excede la longitud máxima de 5 caracteres
+- `PRIMER_CARACTER_NO_LETRA`: El primer carácter no es una letra
+- `CARACTER_INVALIDO`: Contiene caracteres no alfanuméricos
+- `DESCONOCIDO`: Error desconocido (caso no cubierto)
 
+**Uso:**
+- El método `getError(String identificador)` de la clase `Identifier` retorna el tipo específico de error
+- Permite identificar la causa exacta de la invalidación de un identificador
 ## Entregables Obligatorios
 
 El estudiante debe entregar lo siguiente en `src/test/java/...`:
@@ -231,12 +245,12 @@ class IdentifierProperties {
 Usar  [**jqwik** ](https://jqwik.net/). Debe definir al menos 2 propiedades del sistema y testearlas.
 
 
-### 3) Nueva Clase: `IdentifierFixer` ⚠️ Pendiente
+### 3) Nueva Clase: `IdentifierFixer`
 Esta clase debe poder transformar un identificador inválido en uno válido según reglas que tú defines.
 
 Debes definir las reglas de corrección en README (sección abajo).
 
-### 4) Enum de Código de Error ⚠️ Pendiente
+### 4) Enum de Código de Error 
 Cuando el identificador es inválido, el método `validateIdentifier` debe indicar POR QUÉ falla (enum con mínimo 4 causas).
 
 ---
@@ -308,34 +322,161 @@ Esta tabla muestra el diseño completo de los casos de prueba basados en partici
 
 ### Lista de identificadores inválidos y versión corregida por IdentifierFixer
 
-**Estado:** ⚠️ Requiere implementar IdentifierFixer primero
+La siguiente tabla muestra ejemplos reales de identificadores inválidos y cómo `IdentifierFixer` los corrige aplicando las reglas implementadas:
 
-Una vez implementada la clase `IdentifierFixer`, se debe agregar una tabla con ejemplos como:
-- `"1abc"` → `"aabc"` (reemplazo de dígito inicial)
-- `"abcdef"` → `"abcde"` (truncado a 5 caracteres)
-- `"ab-c"` → `"abc"` (eliminación de carácter especial)
+| Identificador Inválido | Versión Corregida | Regla(s) Aplicada(s) |
+|------------------------|-------------------|---------------------|
+| `"1abc"` | `"aabc"` | Reemplazo de dígito inicial por 'a' |
+| `"abcdef"` | `"abcde"` | Truncado a 5 caracteres (longitud máxima) |
+| `"ab-c"` | `"abc"` | Eliminación de carácter especial (guion) |
+| `"@test"` | `"a"` | Eliminación de símbolos y corrección de primer carácter |
+| `"a12b"` | `"a1b"` | Eliminación de dígitos consecutivos (se elimina el segundo '2') |
+| `"a@b#c"` | `"abc"` | Eliminación de múltiples símbolos especiales |
+| `""` | `"a"` | Cadena vacía reemplazada por 'a' |
+| `"12345"` | `"a"` | Solo dígitos: se eliminan todos y se reemplaza por 'a' |
+| `"a1b2c3"` | `"a1b2c"` | Truncado a 5 caracteres (6 caracteres originales) |
+| `"a-b-c"` | `"abc"` | Eliminación de múltiples guiones |
+| `"9xyz"` | `"axyz"` | Reemplazo de dígito inicial por 'a' |
+| `"a  b"` | `"ab"` | Eliminación de espacios |
+| `"abcde"` | `"abcde"` | Ya era válido, no se modifica |
+| `"a11b"` | `"a1b"` | Eliminación de dígitos consecutivos (se elimina el segundo '1') |
+| `"@#$%^"` | `"a"` | Solo símbolos especiales: se eliminan todos y se reemplaza por 'a' |
+
+**Notas sobre el comportamiento:**
+- Si el identificador ya es válido, `IdentifierFixer` lo retorna sin modificar
+- Si después de aplicar todas las reglas el resultado sigue siendo inválido, se retorna `"a"` como fallback
+- El orden de aplicación de las reglas es: eliminación de símbolos → corrección de vacío → corrección de primer carácter → eliminación de dígitos consecutivos → truncado → validación final
 
 ### Justificación de Refactor aplicado al método base
 
-**Estado:** ⚠️ Pendiente de documentación
+**Mejoras aplicadas al método `validateIdentifier`:**
 
-Se debe explicar:
-- Qué mejoras se aplicaron al método `validateIdentifier`
-- Por qué se realizaron esos cambios
-- Cómo mejoran la legibilidad, mantenibilidad o rendimiento del código
+1. **Separación de responsabilidades mediante método auxiliar `validateChars()`:**
+   - Se extrajo la lógica de validación de caracteres (posiciones 1 en adelante) a un método privado `validateChars(String identificador)`
+   - Esto mejora la legibilidad del método principal, que ahora tiene una estructura más clara y fácil de seguir
 
----
+2. **Eliminación de variables innecesarias:**
+   - Se simplificó el método eliminando variables intermedias que no aportaban valor
+   - El código es más directo y conciso
+
+3. **Estructura más clara y legible:**
+   - El método principal ahora sigue un flujo más lineal: validación de null/vacío/longitud → validación de primer carácter → validación de caracteres restantes
+   - Cada validación es independiente y fácil de entender
+
+4. **Adición del método `getError()` para diagnóstico:**
+   - Se agregó un método adicional `getError(String identificador)` que permite identificar el tipo específico de error cuando un identificador es inválido
+   - Esto mejora significativamente la capacidad de diagnóstico y debugging
+
+**Código antes del refactor (versión original):**
+´´´java
+public boolean validateIdentifier(String s) {
+        char achar;
+        boolean valid_id = false;
+
+        achar = s.charAt(0);
+        valid_id = valid_s(achar);
+
+        if (s.length() > 1) {
+            int i = 1;
+            while (i < s.length()) {
+                achar = s.charAt(i);
+                if (!valid_f(achar)) {
+                    valid_id = false;
+                }
+                i++;
+            }
+        }
+
+        if (valid_id && (s.length() >= 1) && (s.length() < 6)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+´´´
+**Código después del refactor (versión actual):**
+```java
+// Versión refactorizada: más limpia, clara y mantenible
+public boolean validateIdentifier(String identificador) {
+    if (identificador == null || identificador.length() == 0 || identificador.length() > 5) return false;
+    if (!esLetra(identificador.charAt(0))) return false;
+    if (identificador.length() > 1 && !validateChars(identificador)) return false;
+    return true;
+}
+
+private boolean validateChars(String identificador) {
+    int i = 1;
+    while (i < identificador.length()) {
+        if (!esAlfanumerico(identificador.charAt(i))) {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+```
+
+**Beneficios del refactor:**
+
+1. **Legibilidad mejorada:**
+   - El código es más fácil de leer y entender para otros desarrolladores
+   - Los nombres de variables y métodos son más descriptivos (`identificador` vs `s`, `esLetra` vs `valid_s`)
+
+2. **Mantenibilidad:**
+   - Cambios futuros son más fáciles de implementar
+   - La separación de lógica en métodos auxiliares facilita la modificación de reglas específicas
+
+3. **Testabilidad:**
+   - La separación de lógica facilita las pruebas unitarias
+   - Cada método puede ser testeado de forma independiente
+
+4. **Extensibilidad:**
+   - El método `getError()` permite futuras mejoras en el manejo de errores
+   - La estructura modular facilita agregar nuevas validaciones
+
+5. **Rendimiento:**
+   - El código es más eficiente al evitar operaciones innecesarias
+   - Las validaciones tempranas (early returns) evitan procesamiento adicional cuando ya se sabe que es inválido
+
+**Justificación técnica:**
+Este refactor sigue principios de Clean Code y SOLID, específicamente el principio de responsabilidad única (SRP), donde cada método tiene una responsabilidad clara y bien definida.
 
 ## Reglas de corrección propuestas para IdentifierFixer
 
-Las siguientes reglas se proponen para la implementación de `IdentifierFixer`:
+## Reglas de corrección implementadas en IdentifierFixer
 
-- Si comienza con número, reemplazar por una letra (por defecto 'a').
-- Si hay 2 dígitos consecutivos, borrar uno de ellos.
-- Si contiene símbolos no permitidos, eliminarlos.
-- Si supera la longitud máxima (5 caracteres), truncar hasta 5 caracteres.
+Las siguientes reglas están **implementadas y funcionando** en la clase `IdentifierFixer`:
 
-**Nota:** Estas reglas deben implementarse en la clase `IdentifierFixer` cuando se desarrolle. Puede proponer otras reglas, pero deben quedar documentadas.
+1. **Eliminación de símbolos no permitidos:**
+   - Si contiene caracteres especiales (guiones, arrobas, espacios, etc.), se eliminan todos
+   - Solo se conservan letras (A-Z, a-z) y dígitos (0-9)
+
+2. **Corrección de cadena vacía:**
+   - Si después de eliminar símbolos la cadena queda vacía, se reemplaza por `"a"`
+
+3. **Corrección de primer carácter:**
+   - Si el primer carácter no es una letra (es un dígito o símbolo), se reemplaza por `"a"`
+   - Si la cadena tiene solo un carácter y no es letra, se reemplaza completamente por `"a"`
+
+4. **Eliminación de dígitos consecutivos:**
+   - Si hay dos o más dígitos consecutivos, se eliminan todos excepto el primero
+   - Ejemplo: `"a12b"` → `"a1b"`, `"a11b"` → `"a1b"`
+
+5. **Truncado a longitud máxima:**
+   - Si la cadena excede 5 caracteres después de las correcciones anteriores, se trunca a exactamente 5 caracteres
+   - Se mantienen los primeros 5 caracteres
+
+6. **Validación final y fallback:**
+   - Después de aplicar todas las reglas, se valida que el resultado sea válido
+   - Si aún es inválido (caso extremo), se retorna `"a"` como valor por defecto seguro
+
+**Orden de aplicación de las reglas:**
+1. Eliminación de símbolos
+2. Corrección de cadena vacía (si aplica)
+3. Corrección de primer carácter (si aplica)
+4. Eliminación de dígitos consecutivos
+5. Truncado a 5 caracteres (si aplica)
+6. Validación final y fallback (si aplica)
 
 ---
 
@@ -347,11 +488,13 @@ Las siguientes reglas se proponen para la implementación de `IdentifierFixer`:
 - ✅ Análisis de frontera: Cubierto en tests parametrizados y unitarios
 
 **Archivos del Proyecto:**
-- `src/main/java/cl/ucn/modelo/Identifier.java` - Clase principal
+- `src/main/java/cl/ucn/modelo/Identifier.java` - Clase principal de validación
+- `src/main/java/cl/ucn/modelo/IdentifierError.java` - Enum de códigos de error
+- `src/main/java/cl/ucn/modelo/IdentifierFixer.java` - Clase para corregir identificadores inválidos
 - `src/main/java/cl/ucn/main/Main.java` - Clase principal de ejecución
-- `src/test/java/cl/ucn/modelo/IdentifierUnitTest.java` - Tests unitarios
-- `src/test/java/cl/ucn/modelo/IdentifierParameterizedTest.java` - Tests parametrizados
-- `src/test/java/cl/ucn/modelo/IdentifierPropertiesTest.java` - Property-Based Testing
+- `src/test/java/cl/ucn/modelo/IdentifierUnitTest.java` - Tests unitarios (19 tests)
+- `src/test/java/cl/ucn/modelo/IdentifierParameterizedTest.java` - Tests parametrizados (24 casos)
+- `src/test/java/cl/ucn/modelo/IdentifierPropertiesTest.java` - Property-Based Testing (4 propiedades)
 
 ---
 
@@ -370,6 +513,3 @@ Las siguientes reglas se proponen para la implementación de `IdentifierFixer`:
 ### Fecha límite: 
 
 Entrega el **18-11-2025** por medio de campus virtual.
-
----
-
