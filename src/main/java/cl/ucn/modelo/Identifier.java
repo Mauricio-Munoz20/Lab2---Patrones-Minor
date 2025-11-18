@@ -2,6 +2,15 @@ package cl.ucn.modelo;
 
 public class Identifier {
 
+    public IdentifierError getError(String identificador) {
+        if (identificador == null || identificador.length() == 0) return IdentifierError.NULO_O_VACIO;
+        if (identificador.length() > 5) return IdentifierError.MUY_LARGO;
+        if (!esLetra(identificador.charAt(0))) return IdentifierError.PRIMER_CARACTER_NO_LETRA;
+        if (!validateChars(identificador)) return IdentifierError.CARACTER_INVALIDO;
+
+        return IdentifierError.DESCONOCIDO;
+    }
+
     private boolean validateChars(String identificador) {
         int i = 1;
         while (i < identificador.length()) {
